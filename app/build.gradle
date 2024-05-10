@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.example.imagehandling"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 

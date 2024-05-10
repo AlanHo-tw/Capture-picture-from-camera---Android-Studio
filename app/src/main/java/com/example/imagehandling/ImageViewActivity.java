@@ -8,11 +8,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;  // 此處引入 ImageView
 
-public class ImageView extends AppCompatActivity {
+public class ImageViewActivity extends AppCompatActivity { // 更改類名稱
 
     private static final int CAMERA_REQUEST = 1888;
-    View imageView;
+    ImageView imageView;
     Button button;
 
     @Override
@@ -21,7 +22,7 @@ public class ImageView extends AppCompatActivity {
         setContentView(R.layout.activity_image_view);
 
         button = findViewById(R.id.buttonPanel);
-        imageView = findViewById(R.id.imageviewer);
+        imageView = (ImageView) findViewById(R.id.imageviewer); // 更改這裡
 
         button.setOnClickListener(new View.OnClickListener(){
 
