@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,14 @@ import androidx.core.content.FileProvider;
 
 import android.graphics.Matrix; // Matrix 類別的引入
 import androidx.exifinterface.media.ExifInterface; // ExifInterface 類別的引入
+
+import java.net.URL;
+import android.os.AsyncTask;
+
+import java.net.HttpURLConnection;
+import java.io.DataOutputStream;
+import java.net.MalformedURLException;
+
 
 
 public class ImageViewActivity extends AppCompatActivity {
@@ -103,7 +112,7 @@ public class ImageViewActivity extends AppCompatActivity {
                 storageDir
         );
         currentPhotoPath = image.getAbsolutePath();
-        Log.d("MyApp","currentPhotoPath: " + currentPhotoPath);
+        // Log.d("MyApp","currentPhotoPath: " + currentPhotoPath);
         return image;
     }
 
@@ -122,6 +131,10 @@ public class ImageViewActivity extends AppCompatActivity {
                 Bitmap rotatedBitmap = rotateBitmap(bitmap, orientation);
 
                 imageView.setImageBitmap(rotatedBitmap);
+
+                // initiate image file transfer
+                new FileTransferTask().execute(currentPhotoPath);
+
             } catch (IOException e) {
                 // 處理異常，例如文件不存在
                 e.printStackTrace();
@@ -169,6 +182,67 @@ public class ImageViewActivity extends AppCompatActivity {
             }
         }
     }
+
+    // Async Task class to handle file transfer in the background thread
+    private class FileTransferTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... paths) {
+
+            String crlf = "\r\n";
+            String twoHyphens = "--";
+            String boundary =  "*****";
+
+            URL url = null;
+            try {
+                url = new URL("http://192.168.1.18:12345/");
+                HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+                httpUrlConnection.setUseCaches(false);
+                httpUrlConnection.setDoOutput(true);
+
+                httpUrlConnection.setRequestMethod("POST");
+                httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
+                httpUrlConnection.setRequestProperty("Cache-Control", "no-cache");
+                httpUrlConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+                DataOutputStream request = new DataOutputStream(httpUrlConnection.getOutputStream());
+
+                request.writeBytes(twoHyphens + boundary + crlf);
+                request.writeBytes("Content-Disposition: form-data; name=\"image\";filename=\"" + "received_image.jpg" + "\"" + crlf);
+                request.writeBytes(crlf);
+
+                File file = new File(paths[0]);
+                FileInputStream fileInputStream = new FileInputStream(file);
+                int bytesRead;
+                byte[] buffer = new byte[1024];
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    request.write(buffer, 0, bytesRead);
+                }
+                request.writeBytes(crlf);
+                request.writeBytes(twoHyphens + boundary + twoHyphens + crlf);
+                request.flush();
+                fileInputStream.close();
+                request.close();
+
+                int responseCode = httpUrlConnection.getResponseCode();
+
+                httpUrlConnection.disconnect();
+
+            } catch (MalformedURLException e) {
+
+                e.printStackTrace();
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+
+            }
+
+            return null;
+        }
+    }
+
+
 
 
 }
