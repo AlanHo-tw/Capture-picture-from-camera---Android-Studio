@@ -8,12 +8,21 @@
     android:orientation="vertical"
     tools:context=".ImageViewActivity">
 
+    <EditText
+        android:id="@+id/ip_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="OCR Server IP"/>
+
+
+
     <ImageView
-        android:layout_weight="1"
         android:id="@+id/imageviewer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/buttonPanel"

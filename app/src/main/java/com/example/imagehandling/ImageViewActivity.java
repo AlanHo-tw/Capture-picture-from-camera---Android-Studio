@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.Printer;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,7 +47,7 @@ public class ImageViewActivity extends AppCompatActivity {
 
     ImageView imageView;
     Button button;
-
+    private String ipAddress; // Add this line
     private String currentPhotoPath;
     private Uri photoUri;
 
@@ -55,13 +56,16 @@ public class ImageViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view);
 
+        EditText editText = findViewById(R.id.ip_address);
         button = findViewById(R.id.buttonPanel);
         imageView = (ImageView) findViewById(R.id.imageviewer);
 
         button.setOnClickListener(new View.OnClickListener(){
 
+            // Inside the onClick of the button, add this
             @Override
             public void onClick(View v) {
+                ipAddress = editText.getText().toString(); // add this
                 requestPermission();
             }
         });
@@ -195,7 +199,9 @@ public class ImageViewActivity extends AppCompatActivity {
 
             URL url = null;
             try {
-                url = new URL("http://192.168.1.18:12345/");
+                url = new URL("http://" + ipAddress + "/"); // Change this
+                Log.d("MyApp","OCR server IP:" + url);
+
                 HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
                 httpUrlConnection.setUseCaches(false);
                 httpUrlConnection.setDoOutput(true);
